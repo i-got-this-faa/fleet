@@ -1,0 +1,14 @@
+{
+  "agent": {
+    "stateDir": "C:\\ProgramData\\Fleet\\state",
+    "journalPath": "C:\\ProgramData\\Fleet\\journal\\journal.jsonl",
+    "driftIntervalMinutes": 240,
+    "pollIntervalSeconds": 300
+  },
+  "server": {
+    "baseUrl": "https://fleet.example.com",
+    "machineTokenRef": "FleetAgent-EnrollmentToken",
+    "allowUnsignedPlans": true,
+    "note": "Plan signature verification (Ed25519) lands with the control server; allowUnsignedPlans must be false in production before any machine applies server plans."
+  }
+}
