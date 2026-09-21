@@ -8,7 +8,7 @@
 //  USER-CONFIGURABLE PARAMETERS
 // ----------------------------------------------------------------------------
 
-#let project-title = "UNIFIED DECLARATIVE CROSS-PLATFORM FLEET MANAGEMENT SYSTEM"
+#let project-title = "SHEPHERD : UNIFIED DECLARATIVE CROSS-PLATFORM FLEET MANAGEMENT SYSTEM"
 #let title-instruction = none
 
 #let degree = "BACHELOR OF TECHNOLOGY"
@@ -17,6 +17,7 @@
 
 #let candidates = (
   (name: "Radhey Kalra", roll: "2023A1R044"),
+  (name: "Aabish Malik", roll: "2023A6R057"),
 )
 
 #let department-full = "Department of Computer Science and Engineering"
@@ -186,13 +187,13 @@
 
 = 1. Project Overview <sec:overview>
 
-This project develops a unified declarative fleet management system for heterogeneous operating systems. The system belongs to the domain of Systems Engineering, Cloud Infrastructure, and Information Security. Contemporary enterprise environments operate mixed fleets of Linux, macOS, and Windows workstations that suffer from configuration drift and high management overhead. The proposed solution provides a central Go server that evaluates pure Nix Flakes to generate cryptographic target states for all client nodes. Native endpoint agents enforce these immutable states, verify cryptographic binary closures, and detect unauthorized drift. The target users are enterprise system administrators, site reliability engineers, and IT compliance officers who require verifiable infrastructure state across distributed endpoints.
+This project develops a unified declarative fleet management system tailored for educational institutions, including universities, colleges, and schools. The system belongs to the domain of Systems Engineering, Cloud Infrastructure, and Information Security. Educational institutions operate large, heterogeneous computing fleets across computer labs, libraries, and classrooms running mixed Linux, macOS, and Windows workstations that suffer from configuration drift, student tampering, and high management overhead. The proposed solution provides a central Go server that evaluates pure Nix Flakes to generate cryptographic target states for all client nodes. Native endpoint agents enforce these immutable states, verify cryptographic binary closures, and detect unauthorized drift. The target users are campus system administrators, academic lab assistants, and institutional IT directors who require verifiable, tamper-resistant infrastructure state across distributed endpoints.
 
 #v(0.4em)
 
 = 2. Problem Statement <sec:problem>
 
-Modern enterprise organizations operate heterogeneous computing fleets containing Linux, macOS, and Windows machines. Current configuration management tools use imperative scripts that execute divergent commands and mutate local host state directly. These imperative updates frequently fail midway, leave systems in partially configured states, and produce silent configuration drift. Existing tools lack unified cryptographic verification for deployed system configurations and cannot execute atomic rollbacks when runtime health checks fail. Enterprise organizations must deploy separate, expensive vendor agents such as SCCM, Intune, Jamf, and Ansible on the same network. Operating separate management silos increases software license expenses and wastes wide-area network bandwidth during software updates. A clear technical gap exists for a single hermetic control plane that provides immutable state reconciliation and peer-to-peer binary distribution across all three operating systems.
+Educational institutions, such as universities, colleges, and schools, operate heterogeneous computing fleets across computer laboratories, smart classrooms, and administrative offices containing Linux, macOS, and Windows machines. Current configuration management tools use imperative scripts that execute divergent commands and mutate local host state directly. These imperative updates frequently fail midway, leave lab systems in partially configured states, and produce silent configuration drift exacerbated by multi-user student access. Existing tools lack unified cryptographic verification for deployed system configurations and cannot execute atomic rollbacks when student modifications or broken updates occur. Educational institutions must deploy separate, expensive proprietary vendor agents such as SCCM, Intune, and Jamf on the same network. Operating separate management silos increases software license expenses and saturates campus network bandwidth during software updates. A clear technical gap exists for a single hermetic control plane that provides immutable state reconciliation and peer-to-peer binary distribution across all three operating systems in educational institutions.
 
 #v(0.4em)
 
@@ -218,13 +219,13 @@ The proposed solution establishes a declarative, pull-based architecture centere
 #v(0.3em)
 
 == 4.1 Central Control Plane
-The central infrastructure hosts the Fleet Core Server, Nix Evaluator, PostgreSQL 16 database, Attic S3 binary cache, and an embedded NanoMDM service. The Nix Evaluator compiles declarative configurations into pure build derivations. The Attic cache compresses and stores signed Nix Archives (NARs) verified with Ed25519 cryptographic keys. The Fleet Core Server broadcasts desired SHA-256 target hashes to connected endpoints through outbound-only mTLS gRPC over HTTPS port 443. For macOS endpoints, the embedded NanoMDM service transmits Apple Push Notification service (APNs) commands to configure native security profiles.
+The central infrastructure hosts the `shepherd` central control service, Nix Evaluator, PostgreSQL 16 database, Attic S3 binary cache, and an embedded NanoMDM service. The Nix Evaluator compiles declarative configurations into pure build derivations. The Attic cache compresses and stores signed Nix Archives (NARs) verified with Ed25519 cryptographic keys. The `shepherd` host service broadcasts desired SHA-256 target hashes to connected endpoints through outbound-only mTLS gRPC over HTTPS port 443. For macOS endpoints, the embedded NanoMDM service transmits Apple Push Notification service (APNs) commands to configure native security profiles.
 
 == 4.2 Native Endpoint Agents
-Each target operating system executes a native, minimal reconciliation agent:
-- *Linux Host (NixOS)*: The `fleetd` agent mounts the root filesystem on an ephemeral `tmpfs` RAM disk while maintaining `/nix/store` in read-only mode. All unauthorized runtime mutations vanish upon system reboot, guaranteeing zero state drift.
-- *macOS Host (Darwin)*: The `fleetd` agent configures system packages through APFS synthetic firmlinks into `/nix/store`. Security baselines, including FileVault volume encryption and Transparency Consent and Control (TCC) profiles, are enforced via the native Apple MDM framework.
-- *Windows Host (NTFS)*: The `fleetd-windows` agent parses desired-state JSON specifications into timestamped generation bundles under `C:\ProgramData\Fleet\generations\<hash>\`. The agent natively compiles and applies Win32 registry hives, Local Group Policy Objects (LGPO), system services, and Winget packages without requiring UNIX emulation layers.
+Each target operating system executes a native, minimal reconciliation agent service (`shepherd-srv`):
+- *Linux Host (NixOS)*: The `shepherd-srv` client agent mounts the root filesystem on an ephemeral `tmpfs` RAM disk while maintaining `/nix/store` in read-only mode. All unauthorized runtime mutations vanish upon system reboot, guaranteeing zero state drift.
+- *macOS Host (Darwin)*: The `shepherd-srv` client agent configures system packages through APFS synthetic firmlinks into `/nix/store`. Security baselines, including FileVault volume encryption and Transparency Consent and Control (TCC) profiles, are enforced via the native Apple MDM framework.
+- *Windows Host (NTFS)*: The `shepherd-srv` client agent parses desired-state JSON specifications into timestamped generation bundles under `C:\ProgramData\Shepherd\generations\<hash>\`. The agent natively compiles and applies Win32 registry hives, Local Group Policy Objects (LGPO), system services, and Winget packages without requiring UNIX emulation layers.
 
 == 4.3 P2P Mesh Distribution and Automated Rollback
 Endpoints form an encrypted peer-to-peer overlay network using a Tailcat userspace WireGuard mesh powered by gVisor `netstack`. When a new target hash is received, nodes discover local LAN peers via cryptographic discovery. Missing binary store chunks are retrieved from adjacent LAN workstations using FastCDC content chunking, reducing WAN gateway saturation by up to 90%. If an update fails health verification, the agent atomically resets the active generation pointer to generation $N-1$, executing an immediate, deterministic rollback.
@@ -257,24 +258,24 @@ The project requires significant systems engineering depth beyond simple softwar
 - *Atomic Reversal Engine*: Engineering continuous drift detection routines that compute host state divergence and perform instant atomic generation rollbacks within three seconds.
 
 == T - Trend Alignment
-The project aligns with contemporary enterprise computing standards:
-- *Infrastructure as Code (IaC)*: Extends GitOps and declarative configuration management from cloud servers to end-user workstations.
-- *Immutable Operating Systems*: Implements ephemeral root filesystems (`tmpfs`) and synthetic APFS firmlinks to eliminate persistent system corruption.
-- *Zero Trust Architecture (ZTA)*: Enforces continuous cryptographic identity verification, outbound-only mTLS connections, and peer-to-peer WireGuard transport without opening inbound perimeter firewall ports.
+The project aligns with contemporary campus computing standards:
+- *Infrastructure as Code (IaC)*: Extends GitOps and declarative configuration management from cloud infrastructure to institutional workstations and student labs.
+- *Immutable Operating Systems*: Implements ephemeral root filesystems (`tmpfs`) and synthetic APFS firmlinks to eliminate persistent system corruption and student tampering.
+- *Zero Trust Architecture (ZTA)*: Enforces continuous cryptographic identity verification, outbound-only mTLS connections, and peer-to-peer WireGuard transport without opening inbound campus perimeter firewall ports.
 
 == S - Social / Industrial Impact
-- *Cost Optimization*: Eliminates recurring enterprise licensing fees for multiple fragmented management tools (Microsoft Intune, SCCM, Jamf Pro, and Ansible Tower).
-- *Bandwidth Efficiency*: Reduces enterprise WAN bandwidth consumption by up to 90% via local LAN chunk swarming during large software distribution cycles.
-- *Security Resilience*: Prevents persistent endpoint malware infection through ephemeral root reboots and continuous configuration drift detection.
-- *Operational Simplicity*: Empowers IT departments to administer multi-platform computing environments through a unified, reproducible codebase.
+- *Cost Optimization*: Eliminates recurring licensing fees for expensive commercial management suites (Intune, SCCM, Jamf Pro, Deep Freeze), saving vital academic funds.
+- *Bandwidth Efficiency*: Reduces campus internet bandwidth consumption by up to 90% via local LAN chunk swarming during large-scale lab software rollouts.
+- *Lab Hygiene*: Prevents persistent student malware infections and configuration drift through ephemeral root reboots and continuous drift detection.
+- *Operational Simplicity*: Empowers academic IT staff to administer multi-platform computing environments across diverse departments through a unified, reproducible codebase.
 
 #v(0.4em)
 
 = 7. Expected Outcomes <sec:outcomes>
 
 The project will deliver the following technical artifacts:
-- A high-performance Fleet Core control server written in Go 1.23 with gRPC services, embedded DERP relay, and administrative audit logging.
-- Native, low-overhead endpoint agents for Linux (`fleetd`), macOS (`fleetd`), and Windows (`fleetd-windows`).
+- A high-performance central host service (`shepherd`) written in Go 1.23 with gRPC services, embedded DERP relay, and administrative audit logging.
+- Native, low-overhead endpoint client agents (`shepherd-srv`) for Linux, macOS, and Windows.
 - A production-grade unified Nix Flake repository template containing host modules for NixOS, nix-darwin, and Windows generation engines.
 - A functional peer-to-peer binary distribution engine that streams verified closure chunks across local network peers.
 - An automated drift detection and atomic rollback mechanism that detects unauthorized host modifications and restores verified state within three seconds.
@@ -298,8 +299,8 @@ The project implementation follows a structured five-phase development schedule:
       [*Phase*], [*Activity*]
     ),
     [*Phase 1\ (Weeks 1–3)*], [Requirement analysis, declarative schema design, and local multi-OS lab testbed configuration.],
-    [*Phase 2\ (Weeks 4–7)*], [Fleet Core Server development in Go 1.23, PostgreSQL 16 schema design, and Nix Flake evaluator pipeline.],
-    [*Phase 3\ (Weeks 8–11)*], [Native endpoint agents development: Linux tmpfs root, macOS APFS/MDM, and Windows Win32/LGPO reconcilers.],
+    [*Phase 2\ (Weeks 4–7)*], [Central host service (`shepherd`) development in Go 1.23, PostgreSQL 16 schema design, and Nix Flake evaluator pipeline.],
+    [*Phase 3\ (Weeks 8–11)*], [Native client agents (`shepherd-srv`) development: Linux tmpfs root, macOS APFS/MDM, and Windows Win32/LGPO reconcilers.],
     [*Phase 4\ (Weeks 12–14)*], [Tailcat WireGuard userspace mesh integration, DERP relay deployment, and FastCDC LAN P2P swarming.],
     [*Phase 5\ (Weeks 15–16)*], [End-to-end integration testing, drift detection evaluation, performance benchmarking, and synopsis presentation.],
   )
