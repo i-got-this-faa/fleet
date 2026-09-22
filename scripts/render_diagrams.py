@@ -6,10 +6,10 @@ import xml.etree.ElementTree as ET
 
 DIAGRAMS = {
     "diagram_topology": """flowchart TB
-  subgraph Server["Fleet Central Infrastructure (Go 1.23 Engine)"]
+  subgraph Server["Shepherd Central Infrastructure (Go 1.23 Engine)"]
     direction TB
     Flake["Unified Nix Flake\n(Git Repo)"] --> Eval["Nix Evaluator\n(Pure Derivations)"]
-    Eval --> Core["Fleet Core Server\n(gRPC & Tailcat DERP)"]
+    Eval --> Core["Shepherd Core Server\n(gRPC & Tailcat DERP)"]
     Core <--> DB[("PostgreSQL 16\nState & Drift Log")]
     Core --> NanoMDM["NanoMDM\n(Apple APNs Engine)"]
     Eval --> Attic[("Attic S3 Store\nSigned Binary Cache")]
@@ -17,16 +17,16 @@ DIAGRAMS = {
 
   subgraph Endpoints["Managed Endpoints (Tailcat WireGuard Mesh)"]
     subgraph Linux["Linux Host (NixOS)"]
-      L_Ag["fleetd (Linux)\nDrift Detector"] --> L_St["/nix/store\n(tmpfs root)"]
+      L_Ag["shepherd-srv (Linux)\nDrift Detector"] --> L_St["/nix/store\n(tmpfs root)"]
     end
 
     subgraph Mac["macOS Host (Darwin)"]
-      M_Ag["fleetd (Darwin)\nDrift Detector"] --> M_St["/nix/store\n(APFS Firmlink)"]
+      M_Ag["shepherd-srv (Darwin)\nDrift Detector"] --> M_St["/nix/store\n(APFS Firmlink)"]
       M_MDM["Apple MDM\nClient"] --> M_Sec["FileVault\n& TCC"]
     end
 
     subgraph Win["Windows Host (NTFS)"]
-      W_Ag["fleetd (Win32)\nDrift Detector"] --> W_Gn["generations/\n(Registry & LGPO)"]
+      W_Ag["shepherd-srv (Win32)\nDrift Detector"] --> W_Gn["generations/\n(Registry & LGPO)"]
     end
   end
 
@@ -40,10 +40,10 @@ DIAGRAMS = {
   Attic -.->|"Signed NARs"| M_St
   Attic -.->|"Signed NARs"| W_Gn
 
-  classDef server fill:#161b22,stroke:#58a6ff,stroke-width:2px,color:#f0f6fc;
-  classDef agent fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc;
-  classDef storage fill:#161b22,stroke:#d29922,stroke-width:2px,color:#f0f6fc;
-  classDef mdm fill:#161b22,stroke:#bc8cff,stroke-width:2px,color:#f0f6fc;
+  classDef server fill:#ffffff,stroke:#0969da,stroke-width:2px,color:#1f2328;
+  classDef agent fill:#ffffff,stroke:#1a7f37,stroke-width:2px,color:#1f2328;
+  classDef storage fill:#ffffff,stroke:#9a6700,stroke-width:2px,color:#1f2328;
+  classDef mdm fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328;
 
   class Flake,Eval,Core server;
   class L_Ag,M_Ag,W_Ag agent;
@@ -52,9 +52,9 @@ DIAGRAMS = {
 """,
 
     "diagram_network_mesh": """flowchart TB
-  subgraph Server["Fleet Central Infrastructure (Go 1.23 Engine)"]
+  subgraph Server["Shepherd Central Infrastructure (Go 1.23 Engine)"]
     direction TB
-    Core["Fleet Core Engine\n(Target Hashes & Telemetry)"]
+    Core["Shepherd Core Engine\n(Target Hashes & Telemetry)"]
     DERP["Embedded DERP Relay\n(HTTPS 443 Fallback)"]
     Attic[("Attic S3 Store\n(Master Binary Cache)")]
     Core --> DERP
@@ -62,11 +62,11 @@ DIAGRAMS = {
   end
 
   subgraph Endpoints["Tailcat WireGuard Mesh (All Nodes)"]
-    subgraph Remote["Remote Laptops (WAN)"]
+    subgraph Remote["Remote Machines (WAN)"]
       R_Direct["Direct Peer\n(Home Wi-Fi)"]
       R_Relay["Restricted NAT\n(DERP HTTPS)"]
     end
-    subgraph Office["Office Workstations (LAN Swarm)"]
+    subgraph Office["Lab Machines (LAN Transfer)"]
       NodeA["Peer 1\n(S3 Fetcher)"]
       NodeB["Peer 2\n(LAN Receiver)"]
       NodeA -->|"LAN P2P Chunk Stream"| NodeB
@@ -80,10 +80,10 @@ DIAGRAMS = {
   DERP -.->|"HTTPS 443 Tunnel"| R_Relay
   Attic -.->|"Signed Upstream Closures"| NodeA
 
-  classDef server fill:#161b22,stroke:#58a6ff,stroke-width:2px,color:#f0f6fc;
-  classDef remote fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#f0f6fc;
-  classDef office fill:#161b22,stroke:#d29922,stroke-width:2px,color:#f0f6fc;
-  classDef derp fill:#161b22,stroke:#bc8cff,stroke-width:2px,color:#f0f6fc;
+  classDef server fill:#ffffff,stroke:#0969da,stroke-width:2px,color:#1f2328;
+  classDef remote fill:#ffffff,stroke:#1a7f37,stroke-width:2px,color:#1f2328;
+  classDef office fill:#ffffff,stroke:#9a6700,stroke-width:2px,color:#1f2328;
+  classDef derp fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328;
 
   class Core,Attic server;
   class DERP derp;
@@ -98,7 +98,7 @@ DIAGRAMS = {
     "diagram_cache_sequence": """sequenceDiagram
   autonumber
   actor Admin as Admin
-  participant Server as Fleet Server
+  participant Server as Shepherd Server
   participant Farm as Build Farm
   participant Attic as Attic S3
   participant A as Node A (LAN)
@@ -150,7 +150,7 @@ DIAGRAMS = {
     AppleClient --> Security["FileVault Escrow & TCC Profiles"]
   end
 
-  subgraph FleetChannel["Fleet Agent Channel (Software)"]
+  subgraph FleetChannel["Shepherd Agent Channel (Software)"]
     direction TB
     DarwinHash["Target Darwin Hash"] --> FetchClosure["Fetch Closure (Tailcat / S3)"]
     FetchClosure --> DarwinStore["Write /nix/store (Firmlink)"]
@@ -170,7 +170,7 @@ DIAGRAMS = {
 
   subgraph Stage2["2. Local Reconciler Engine"]
     direction LR
-    Bundle["Write Bundle\nC:\\ProgramData\\Fleet\\generations"] --> Apply["Apply State:\n• Win32 Registry Hives\n• LGPO .pol Files\n• Winget Packages\n• Windows Services"]
+    Bundle["Write Bundle\nC:\\ProgramData\\Shepherd\\generations"] --> Apply["Apply State:\n• Win32 Registry Hives\n• LGPO .pol Files\n• Winget Packages\n• Windows Services"]
   end
 
   subgraph Stage3["3. Verification & Automated Rollback"]
@@ -200,14 +200,14 @@ DIAGRAMS = {
 
   subgraph Phase3["Phase 3: Production (Ring 2)"]
     direction LR
-    R2["Ring 2: 100% General Fleet"] --> Stable["Full Fleet Stable"]
+    R2["Ring 2: 100% General Fleet"] --> Stable["Full Campus Fleet Stable"]
   end
 
   Phase1 --> Phase2 --> Phase3
 """,
 
     "diagram_dashboard": """flowchart TB
-  subgraph Endpoints["1. Fleet Endpoints"]
+  subgraph Endpoints["1. Shepherd Endpoints"]
     direction LR
     L["Linux Nodes"] --- M["macOS Nodes"] --- W["Windows Nodes"]
   end
@@ -222,11 +222,11 @@ DIAGRAMS = {
     Prom --> LLM
   end
 
-  subgraph Console["3. Fleet Web Console (Next.js 15)"]
+  subgraph Console["3. Shepherd Web Console (Next.js 16)"]
     direction LR
     Inv["Host Inventory & Generations"]
     Drift["Drift Detection & 1-Click Revert"]
-    Alerts["AI Incident Summaries"]
+    Alerts["AI Insights & Recommended Tweaks"]
   end
 
   Endpoints ==>|Telemetry & Heartbeats| Stream
@@ -243,7 +243,7 @@ def render_diagram(name, mmd_code):
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
   body {{
-    background-color: #0d1117;
+    background-color: #ffffff;
     margin: 0;
     padding: 16px;
     display: flex;
@@ -255,20 +255,20 @@ def render_diagram(name, mmd_code):
     font-size: 22px !important;
     font-weight: 600 !important;
     line-height: 1.3 !important;
-    color: #f0f6fc !important;
+    color: #1f2328 !important;
   }}
   .edgeLabel {{
     font-size: 18px !important;
     font-weight: 700 !important;
-    color: #58a6ff !important;
-    background-color: #161b22 !important;
+    color: #0969da !important;
+    background-color: #ffffff !important;
     padding: 3px 6px !important;
     border-radius: 4px !important;
   }}
   .cluster-label .nodeLabel {{
     font-size: 24px !important;
     font-weight: 700 !important;
-    color: #58a6ff !important;
+    color: #0969da !important;
   }}
 </style>
 </head>
@@ -279,16 +279,16 @@ def render_diagram(name, mmd_code):
 <script>
 mermaid.initialize({{
   startOnLoad: true,
-  theme: 'dark',
+  theme: 'default',
   themeVariables: {{
-    darkMode: true,
-    background: '#0d1117',
-    primaryColor: '#1f6feb',
-    primaryTextColor: '#c9d1d9',
-    primaryBorderColor: '#388bfd',
-    lineColor: '#58a6ff',
-    secondaryColor: '#238636',
-    tertiaryColor: '#161b22',
+    darkMode: false,
+    background: '#ffffff',
+    primaryColor: '#ffffff',
+    primaryTextColor: '#1f2328',
+    primaryBorderColor: '#0969da',
+    lineColor: '#0969da',
+    secondaryColor: '#f6f8fa',
+    tertiaryColor: '#f6f8fa',
     fontSize: '18px'
   }}
 }});

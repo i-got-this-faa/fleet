@@ -4,8 +4,8 @@ theme: default
 paginate: true
 style: |
   section {
-    background-color: #0d1117;
-    color: #c9d1d9;
+    background-color: #ffffff;
+    color: #1f2328;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     padding: 36px 48px 48px 48px;
     height: 720px;
@@ -15,7 +15,7 @@ style: |
     justify-content: flex-start;
   }
   h1, h2, h3 {
-    color: #58a6ff;
+    color: #0969da;
     font-weight: 700;
   }
   h1 {
@@ -24,14 +24,15 @@ style: |
   }
   h2 {
     font-size: 1.45rem;
-    border-bottom: 1px solid #30363d;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid #d0d7de;
     padding-bottom: 6px;
     margin: 0 0 14px 0;
     width: 100%;
   }
   h3 {
     font-size: 1.1rem;
-    color: #79c0ff;
+    color: #0550ae;
     margin: 0 0 8px 0;
   }
   p, li {
@@ -46,15 +47,15 @@ style: |
     margin-bottom: 5px;
   }
   code {
-    background-color: #161b22;
-    color: #79c0ff;
+    background-color: #f6f8fa;
+    color: #0550ae;
     border-radius: 4px;
     padding: 2px 6px;
     font-size: 0.8rem;
   }
   pre {
-    background-color: #161b22 !important;
-    border: 1px solid #30363d;
+    background-color: #f6f8fa !important;
+    border: 1px solid #d0d7de;
     border-radius: 6px;
     padding: 10px;
     font-size: 0.72rem;
@@ -65,29 +66,29 @@ style: |
     border-collapse: collapse;
     width: 100%;
     margin-top: 6px;
-    background-color: #161b22 !important;
-    color: #c9d1d9 !important;
+    background-color: #ffffff !important;
+    color: #1f2328 !important;
   }
   table th {
-    background-color: #21262d !important;
-    color: #58a6ff !important;
-    border: 1px solid #30363d !important;
+    background-color: #f6f8fa !important;
+    color: #0969da !important;
+    border: 1px solid #d0d7de !important;
     padding: 8px 12px;
     font-weight: 600;
   }
   table td {
-    background-color: #0d1117 !important;
-    border: 1px solid #30363d !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d0d7de !important;
     padding: 8px 12px;
-    color: #c9d1d9 !important;
+    color: #1f2328 !important;
   }
   table tr, table tr:nth-child(2n), table tbody tr, table tbody tr:nth-child(2n) td {
-    background-color: #0d1117 !important;
-    color: #c9d1d9 !important;
+    background-color: #ffffff !important;
+    color: #1f2328 !important;
   }
   table tr:nth-child(2n+1) td {
-    background-color: #161b22 !important;
-    color: #c9d1d9 !important;
+    background-color: #f6f8fa !important;
+    color: #1f2328 !important;
   }
   .split-40-60 {
     display: flex;
@@ -118,7 +119,6 @@ style: |
     flex: 1;
     min-height: 0;
   }
-
   .split-50-50 > .col-left {
     flex: 0 0 48%;
   }
@@ -133,7 +133,7 @@ style: |
     max-width: 100%;
     object-fit: contain;
     border-radius: 6px;
-    border: 1px solid #30363d;
+    border: 1px solid #d0d7de;
   }
   section.lead {
     display: flex;
@@ -159,26 +159,111 @@ style: |
     font-size: 0.95rem;
     line-height: 1.6;
   }
+  section.lead small {
+    margin-top: 1.4rem;
+    color: #57606a;
+    font-size: 0.85rem;
+  }
+  .title-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+  .title-footer img.miet-logo {
+    height: 76px;
+    max-width: 340px;
+    object-fit: contain;
+    border: none;
+    border-radius: 0;
+  }
+  .title-footer small {
+    margin-top: 0;
+    color: #57606a;
+    font-size: 0.85rem;
+  }
 ---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
-# Fleet management system
-### Unified declarative control for Linux, macOS, and Windows
-**Central build server, P2P binary cache, and automated rollback**
+# SHEPHERD
+### Unified declarative cross-platform fleet management system
+
+*Presented by:* Radhey Kalra (2023A1R044) · Aabish Malik (2023A6R057)
+
+<div class="title-footer">
+
+<img src="synopsis/logo.png" class="miet-logo" alt="MIET logo" />
+
+<small>Model Institute of Engineering and Technology (Autonomous), Jammu · 2026</small>
+
+</div>
 
 ---
 
-## The operational problem
+## The problem on campus
 
-Engineering teams manage three operating systems with three disconnected tools.
+Institutions run computer labs with Linux, macOS, and Windows machines on one network, used by many students.
 
-- **Linux**: Engineers write bash scripts and Ansible playbooks. System state drifts over time.
-- **macOS**: Administrators purchase proprietary MDM licenses. Packaging custom software is slow.
-- **Windows**: Administrators maintain Intune profiles and Group Policies. Registry changes remain opaque.
+- Scripts and manual setup leave machines in different states. A lab of 30 machines drifts apart over a semester.
+- Failed updates stop midway. Some machines boot, some do not, and nobody knows which without walking over.
+- Student access adds constant untracked changes: settings, installs, deleted files.
+- Current tools cover one OS each: SCCM and Intune for Windows, Jamf for macOS. Each needs a license and its own server. Updates pulled three times saturate the campus link.
 
-**The target state:**
-Write one unified Nix Flake. Evaluate host configurations from one central server. Deploy immutable configurations to all three operating systems.
+---
+
+## What is Nix
+
+Nix is a package manager and configuration system built around one idea: a configuration file describes the required state, and tooling derives the steps to reach it.
+
+- **Store paths**: Every package builds into an isolated path `/nix/store/<hash>-<name>`. The hash covers all build inputs. Same inputs, same output, on any machine.
+- **No dependency conflicts**: Two versions of a library coexist because their paths differ.
+- **Generations**: Each configuration activation creates a numbered generation. Switching to the previous one is a symlink change.
+- **Flakes**: `flake.nix` plus `flake.lock` pin every input to an exact commit, so two machines evaluate the same configuration into the same system.
+
+Nix defines one machine. This project extends the model to many machines across three operating systems.
+
+---
+
+## Existing tools and what they miss
+
+| Tool | Coverage | Why it does not fit |
+| :--- | :--- | :--- |
+| **SCCM / Intune** | Windows | Per-seat licenses, policy model without state verification or rollback |
+| **Jamf** | macOS | Separate license and server; no Linux or Windows |
+| **Ansible / shell scripts** | Any | Push model: each run mutates host state; a failed run leaves the host half-configured |
+| **Deep Freeze** | Lab disks | Restores disk on reboot but cannot install updates or change packages |
+| **NixOS alone** | One machine | Declarative and rollback-capable, but no central dispatch, inventory, or non-Linux targets |
+
+Shepherd combines the missing pieces: one declarative source for three operating systems, pull-based agents, signed artifacts, and rollback from the model rather than as an add-on.
+
+---
+
+## How it works
+
+A Go server evaluates Nix Flakes into target states. Agents on each machine enforce these states.
+
+- **One source**: Administrators maintain a single Flake repository describing every host.
+- **Pull model**: The server sends a SHA-256 target hash. Each agent fetches what it needs and applies it locally.
+- **Verification**: Every archive carries an Ed25519 signature. Agents check signatures before unpacking.
+- **Rollback**: A failed health check switches the host back to the previous generation.
+
+Target users: campus system administrators, lab assistants, and institutional IT staff.
+
+---
+
+## Onboarding a new machine
+
+1. The technician boots the machine from an enrollment image (USB or PXE) containing `shepherd-srv` and host keys.
+2. The agent generates a device key pair and sends a join request.
+3. An administrator approves the token in the web console.
+4. The agent receives its host name, role, and Flake target over mTLS.
+5. It pulls the signed closure from the cache or a LAN peer and verifies each signature.
+6. It applies generation 1 and reports the resulting hash. The console lists the node as compliant.
+
+After this, the node applies each new target hash on its own.
 
 ---
 
@@ -187,12 +272,11 @@ Write one unified Nix Flake. Evaluate host configurations from one central serve
 <div class="split-40-60">
 <div class="col-left">
 
-### Control layer and endpoints
-- **Fleet server**: Evaluates unified Nix Flakes into target closures.
+- **Shepherd server**: Evaluates unified Nix Flakes into target closures.
 - **Control channel**: Outbound gRPC over HTTPS port 443 with mTLS.
-- **Linux endpoints**: Native NixOS with ephemeral `tmpfs` root.
+- **Linux endpoints**: NixOS with ephemeral `tmpfs` root.
 - **macOS endpoints**: Nix-Darwin with embedded NanoMDM security.
-- **Windows endpoints**: Native Go agent mapping configurations to Win32, Registry, and LGPO.
+- **Windows endpoints**: Native Go agent (`shepherd-srv`) maps configurations to Win32, Registry, and LGPO.
 - **P2P transport**: Tailcat userspace WireGuard mesh on local networks.
 
 </div>
@@ -210,12 +294,11 @@ Write one unified Nix Flake. Evaluate host configurations from one central serve
 <div class="split-40-60">
 <div class="col-left">
 
-### Distribution sequence
 - Admin pushes Flake lock update to Git.
 - Build workers compile derivations and write outputs to Attic.
 - Server sends target hash to endpoints via gRPC.
 - Node A downloads missing paths from Attic S3.
-- Node B requests chunks from Node A via local LAN Tailcat WireGuard.
+- Node B requests chunks from Node A over local LAN Tailcat WireGuard.
 - Endpoints verify Ed25519 signatures before unpacking.
 
 </div>
@@ -228,28 +311,15 @@ Write one unified Nix Flake. Evaluate host configurations from one central serve
 
 ---
 
-## Build cache mechanics
-
-| Phase | Mechanism | Technical function |
-| :--- | :--- | :--- |
-| **Derivation build** | Sandboxed build farm | Compiles packages into immutable store paths (`/nix/store/<hash>-<name>`). |
-| **Signature** | Ed25519 private key | Signs `.narinfo` index files. Clients reject unsigned or modified paths. |
-| **Persistence** | Attic store on S3 | Deduplicates storage blocks with FastCDC. Compresses archives with Zstandard. |
-| **Local transfer** | Tailcat peer transport | Streams missing store chunks between machines on the same local network. |
-| **Integrity check** | Cryptographic verification | Verifies SHA-256 hashes before unpacking archives into the local store. |
-
----
-
 ## Linux node execution workflow
 
 <div class="split-50-50">
 <div class="col-left">
 
-### NixOS immutable execution
-- **Ephemeral root**: The operating system boots with `tmpfs` mounted at `/`. A reboot wipes unauthorized files.
-- **Store protection**: The host mounts `/nix/store` as read-only.
-- **Persistent state**: The agent binds machine identity and host keys from `/persist` using `impermanence`.
-- **Atomic rollback**: If post-switch health checks fail, the agent switches the symlink back to generation $N-1$.
+- **Ephemeral root**: The system boots with `tmpfs` mounted at `/`. A reboot clears all changes made after boot.
+- **Store protection**: `/nix/store` mounts read-only.
+- **Persistent state**: Machine identity and host keys bind from `/persist` using `impermanence`.
+- **Rollback**: If post-switch health checks fail, the agent reverts the symlink to generation N-1.
 
 </div>
 <div class="col-right">
@@ -266,11 +336,10 @@ Write one unified Nix Flake. Evaluate host configurations from one central serve
 <div class="split-50-50">
 <div class="col-left">
 
-### Dual-channel management
-- **Integrated MDM**: The Fleet server includes an embedded NanoMDM service for FileVault escrow and TCC permissions.
-- **Nix integration**: The agent writes packages to `/nix/store` using APFS synthetic firmlinks.
-- **Declarative state**: `darwin-rebuild activate` updates LaunchDaemons and user preference plists.
-- **License savings**: Eliminates third-party MDM vendor costs.
+- **MDM channel**: The server runs an embedded NanoMDM service for FileVault escrow and TCC permissions.
+- **Nix channel**: Packages install under `/nix/store` through APFS synthetic firmlinks.
+- **Activation**: `darwin-rebuild activate` updates LaunchDaemons and preference plists.
+- **Licensing**: No third-party MDM subscription.
 
 </div>
 <div class="col-right">
@@ -287,15 +356,14 @@ Write one unified Nix Flake. Evaluate host configurations from one central serve
 <div class="split-50-50">
 <div class="col-left">
 
-### Desired state pipeline
-- **Intermediate representation**: Server evaluates Nix into a typed JSON desired-state document.
-- **Local generation bundle**: Agent writes files to `C:\ProgramData\Fleet\generations\<hash>\`.
+- **Intermediate representation**: The server evaluates Nix into a typed JSON desired-state document.
+- **Generation bundle**: `shepherd-srv` writes files to `C:\ProgramData\Shepherd\generations\<hash>\`.
 - **State application**:
-  - Applies registry keys using Win32 API calls.
+  - Writes registry keys through Win32 API calls.
   - Compiles and applies LGPO policy files.
   - Installs Winget and MSIX packages.
-  - Configures Windows services and queries WMI.
-- **Idempotent rollback**: If verification fails, the agent re-executes the generation $N-1$ bundle.
+  - Configures services and queries WMI.
+- **Rollback**: If verification fails, the agent re-applies the generation N-1 bundle.
 
 </div>
 <div class="col-right">
@@ -307,33 +375,31 @@ Write one unified Nix Flake. Evaluate host configurations from one central serve
 
 ---
 
-## Windows rollback: Generation re-application
+## Windows rollback: generation re-application
 
-We reject complex state diff engines and heavy disk restore points.
+State diff engines and disk restore points were considered and rejected.
 
-- State diff journals introduce fragile edge cases and unneeded code complexity.
-- Volume Shadow Copy restore points consume multiple gigabytes of disk and require reboots.
+- Diff journals accumulate edge cases; a missed write leaves the host inconsistent.
+- Volume Shadow Copy restore points occupy gigabytes and need a reboot.
 
-### The generation re-application model
-1. The agent keeps previous generation bundles in `C:\ProgramData\Fleet\generations\`.
-2. Each bundle contains complete `.reg` files, policy manifests, and package lists.
-3. When generation $N$ fails validation, the agent re-executes the generation $N-1$ bundle.
-4. Re-running the previous declarative bundle is idempotent. The system returns to compliant state in seconds without a reboot.
+The agent re-applies the previous bundle instead:
+
+1. Bundles stay on disk under `C:\ProgramData\Shepherd\generations\`.
+2. Each bundle holds complete `.reg` files, policy manifests, and package lists.
+3. If generation N fails validation, the agent re-runs the generation N-1 bundle.
+4. Re-application is idempotent: the host returns to the declared state in seconds, without a reboot.
 
 ---
 
-## Networking: Tailcat unified mesh
+## Networking: Tailcat mesh
 
 <div class="split-40-60">
 <div class="col-left">
 
-### Mesh and telemetry transport
-- **Remote laptops (WAN)**: Traveling endpoints connect via userspace WireGuard (gVisor `netstack`, zero TUN conflicts) with HTTPS 443 DERP fallback.
-- **Target hashes via Tailcat**: The server dispatches desired-state hashes over the private WireGuard mesh without exposing public ports.
-- **Telemetry via HTTP tunneling**: Live metrics and heartbeats stream back via HTTP/gRPC tunneling with automatic HTTPS DERP fallback.
-- **Office workstations (LAN)**: Local machines discover peers via Tailcat Disco and stream binary store chunks at gigabit LAN speed.
-
-
+- **Target hashes**: Desired-state hashes push over WireGuard. No open inbound ports.
+- **Telemetry**: Heartbeats and metrics stream via gRPC, with HTTPS 443 DERP fallback.
+- **Remote machines**: Userspace WireGuard (gVisor `netstack`, no TUN conflicts) with DERP relay behind NAT.
+- **Lab machines**: Local peers discover via Tailcat Disco and swarm store chunks at LAN speed.
 
 </div>
 <div class="col-right">
@@ -343,20 +409,18 @@ We reject complex state diff engines and heavy disk restore points.
 </div>
 </div>
 
-
-
 ---
 
-## Fleet web console and telemetry
+## Web console and telemetry
 
 <div class="split-40-60">
 <div class="col-left">
 
-### Operational console architecture
-- **Web console (Next.js 15)**: Displays real-time inventory, target generations, and compliance drift.
-- **Control server engine (Go)**: Collects metrics and pushes state updates over WebSockets and gRPC.
-- **PostgreSQL 16**: Stores relational host inventories with TimescaleDB toggle.
-- **Prometheus & LLM**: Real-time threshold monitoring paired with plain-language incident explanations.
+- **Web console (Next.js 16)**: Live node inventory, target generations, and drift state.
+- **Telemetry stream**: Ingests node metrics and heartbeats via Go gRPC into PostgreSQL.
+- **AI incident insights**: Explains Prometheus alerts and metric spikes with plain-language root-cause notes.
+- **AI-recommended tweaks**: Proposes hardware-matched Flake tweaks and configuration diffs for admin approval.
+- **1-click revert**: Administrator confirms AI proposals and triggers instant rollback for drifting nodes.
 
 </div>
 <div class="col-right">
@@ -368,96 +432,70 @@ We reject complex state diff engines and heavy disk restore points.
 
 ---
 
-## Operational metrics and human control
+## Daily operation
 
-- **Deterministic alerting**: Prometheus metric rules detect system faults, high failure counts, and failed check-ins.
-- **Incident summaries**: An LLM reads metric anomalies and writes short plain-language root cause explanations.
-- **Drift detection**: The agent reports unauthorized registry edits, modified services, and untracked software packages.
-- **One-click bulk revert**: Administrators review non-compliant nodes in the dashboard and click **Revert Selected** to re-apply the assigned generation.
-- **Safe boundaries**: The AI assistant never makes autonomous configuration changes to production computers.
-
----
-
-## Database architecture and scaling
-
-<div class="split-50-50">
-<div class="col-left">
-
-### Unified relational schema
-- **Single database engine**: PostgreSQL 16.
-- **Shared schema**: Uses the same SQL tables across all deployment scales.
-- **Small fleets (under 2,000 nodes)**: Uses native PostgreSQL monthly table partitions.
-- **Large fleets (over 10,000 nodes)**: Enables TimescaleDB hypertable compression with a configuration toggle.
-- **Zero schema rewrite**: The schema does not change as an organization scales.
-
-</div>
-<div class="col-right">
-
-```sql
--- Core relational inventory
-CREATE TABLE nodes (
-    id UUID PRIMARY KEY,
-    hostname TEXT NOT NULL,
-    os_type TEXT NOT NULL,
-    target_gen TEXT NOT NULL,
-    current_gen TEXT NOT NULL,
-    last_seen_at TIMESTAMPTZ NOT NULL
-);
-
--- Telemetry log (TimescaleDB toggle)
-CREATE TABLE node_telemetry (
-    recorded_at TIMESTAMPTZ NOT NULL,
-    node_id UUID REFERENCES nodes(id),
-    cpu_percent REAL,
-    memory_used_bytes BIGINT,
-    drift_detected BOOLEAN,
-    payload JSONB
-);
-```
-
-</div>
-</div>
+- **Drift reports**: Agents report registry edits, changed services, and untracked packages. The console pairs each report with the assigned generation.
+- **Revert**: The administrator selects non-compliant nodes and applies the assigned generation again. Bulk actions cover a whole lab at once.
+- **AI-drafted packages**: When course software is missing from repositories, a model drafts the Nix derivation. It deploys only after the same sandboxed build, hash, and reproducibility checks as any other package.
+- **Hardware-matched settings**: The model reads CPU, RAM, disk, and GPU reports and proposes Flake changes per machine class (effects off on low-RAM lab desktops, build parallelism matched to core count). The administrator accepts or edits each proposal as a normal Flake diff.
+- **Limits**: The assistant produces drafts and summaries. It does not change running machines on its own; every change passes through the same review and generation pipeline as manual work.
 
 ---
 
-## Deployment rings and verification
+## Technology stack
 
-<div class="split-50-50">
-<div class="col-left">
-
-### Ring-based rollout
-- **Canary stage (Ring 0)**: Deploys updates to 1% of internal test workstations for 24 hours.
-- **Early adopters (Ring 1)**: Deploys updates to 10% of users for 48 hours.
-- **Full rollout (Ring 2)**: Deploys to all remaining production computers.
-- **Local watchdog**: If an endpoint loses contact with the Fleet server for three consecutive check-ins after an update, it reverts locally to the last good generation.
-
-</div>
-<div class="col-right">
-
-<img src="/home/radhey/code/fleet-management/assets/diagram_canary_rings.svg" />
-
-</div>
-</div>
-
----
-
-## Production technology stack
-
-| Subsystem | Technology | Responsibility |
+| Subsystem | Technology | Role |
 | :--- | :--- | :--- |
 | **Control plane** | Go 1.23 | HTTP/gRPC server, Nix evaluator, embedded Tailcat DERP relay |
-| **Apple MDM** | NanoMDM | APNs push, FileVault key escrow, TCC permission profiles |
-| **Database** | PostgreSQL 16 | Relational node inventory and optional TimescaleDB telemetry |
-| **Build cache** | Attic + S3 | Content-addressed chunk store with FastCDC deduplication |
-| **Client agent** | Go 1.23 (`fleetd`) | System daemon on Linux (systemd), macOS (launchd), Windows (Service) |
-| **Windows engine** | Win32 FFI | Registry transactions, LGPO policies, Winget installations |
-| **Web dashboard** | Next.js 15 | React 19, TypeScript, Tailwind CSS, Prometheus alert summaries |
+| **Apple MDM** | NanoMDM | APNs push, FileVault key escrow, TCC profiles |
+| **Database** | PostgreSQL 16 | Node inventory, optional TimescaleDB telemetry |
+| **Build cache** | Attic + S3 | Content-addressed store, FastCDC deduplication |
+| **Client agent** | Go 1.23 (`shepherd-srv`) | systemd / launchd / Windows service |
+| **Windows engine** | Win32 FFI | Registry writes, LGPO policies, Winget installs |
+| **Web console** | Next.js 16 | React 19, TypeScript, Tailwind CSS |
+| **Analysis** | LLM pipeline | Log summaries, derivation drafts, hardware tuning proposals |
+
+---
+
+## V.E.T.S justification
+
+| Criterion | How the project meets it |
+| :--- | :--- |
+| **V: Viability** | Fits one semester. Built on Go 1.23, Nix, WireGuard, PostgreSQL. A three-OS lab testbed is running. |
+| **E: Engineering depth** | Nix-to-Win32/LGPO/plist translation, Ed25519 closure verification, userspace WireGuard with NAT traversal, rollback under three seconds. |
+| **T: Trend alignment** | Infrastructure as code, immutable OS roots, Zero Trust with outbound-only mTLS, applied models for operations. |
+| **S: Social impact** | No SCCM/Intune/Jamf licenses; LAN chunk swarming keeps large rollouts off the campus WAN; labs return to a clean state on reboot. |
+
+---
+
+## Expected outcomes
+
+- **Central server** (`shepherd`): Go 1.23, gRPC services, embedded DERP relay, audit logging.
+- **Endpoint agents** (`shepherd-srv`): native clients for Linux, macOS, and Windows.
+- **Flake template**: host modules for NixOS, nix-darwin, and the Windows generation engine.
+- **P2P distribution**: verified closure transfer between LAN peers.
+- **Drift handling**: detection and rollback within three seconds.
+- **Analysis pipeline**: log summaries, derivation drafting with validation, hardware-tuned proposals.
+- **Benchmarks**: convergence time, WAN traffic saved, rollback reliability.
+
+---
+
+## Implementation timeline
+
+| Phase | Weeks | Activity |
+| :--- | :--- | :--- |
+| **Phase 1** | 1–3 | Requirement analysis, schema design, multi-OS testbed setup. |
+| **Phase 2** | 4–7 | `shepherd` server in Go 1.23, PostgreSQL 16 schema, Flake evaluator. |
+| **Phase 3** | 8–11 | `shepherd-srv` agents: Linux tmpfs root, macOS APFS/MDM, Windows Win32/LGPO. |
+| **Phase 4** | 12–14 | Tailcat WireGuard mesh, DERP relay, FastCDC LAN transfer. |
+| **Phase 5** | 15–16 | Integration testing, drift evaluation, benchmarks, synopsis presentation. |
 
 ---
 
 <!-- _class: lead -->
 # Summary
-- One Nix Flake controls Linux, macOS, and Windows computers.
-- Tailcat peer networking distributes binary closures across office local networks.
-- Generation re-application provides reliable Windows rollback without restore points.
-- Embedded NanoMDM eliminates third-party Apple MDM subscriptions.
+- One Flake repository defines Linux, macOS, and Windows machines.
+- Agents pull signed target hashes and verify each artifact before activation.
+- Failed updates roll back to the previous generation; Linux labs also reset on reboot.
+- LAN peers exchange store chunks, so campus bandwidth stays free during rollouts.
+- A model drafts derivations and summarizes logs; administrators review every change.
